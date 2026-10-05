@@ -1,0 +1,39 @@
+# [generator] is read once when the MCP server starts: restart Claude Code after changing it.
+# Everything else is re-read on every get_config call.
+[generator]
+model = "z-image-turbo"       # z-image-turbo | flux2-klein-4b | flux-schnell
+quantize = 4                  # ignored by pre-quantized models
+steps = 9
+width = 768
+height = 768
+
+[defaults]
+style = "Japanese anime illustration in the style of a slice-of-life anime, 2D cel shading, clean thin lineart, soft warm palette, expressive characters. NOT Western cartoon, NOT Pixar, NOT 3D render"
+term_field = "Front"           # what the card is about
+meaning_field = "Back"         # what it means (HTML stripped)
+image_field = "Back"
+placement = "append"           # append | prepend | replace
+skip_if_has_image = true
+batch_size = 10
+card_kind = "auto"             # auto | word | concept
+caption = ""                   # banner template with {term}; "" = no text on the image
+constraints = "NOT Western cartoon, NOT Pixar, NOT 3D render, NOT chibi. No text in the image"
+prompt_guide = ""              # markdown with scene-writing rules, relative to this file
+
+# Claude fills {term} and {meaning} with English visual scene descriptions, never the
+# foreign word itself (models draw quoted words as text).
+[prompt_rules]
+word = "{term}, one clear scene, centered composition"
+concept = "a visual metaphor scene: {meaning}"
+
+# Per-deck overrides: any [defaults] key; subdecks (A::B) inherit A's overrides.
+# The deck below is an example: rename it to one of your decks and adjust the fields.
+[decks."Vocabulary"]
+term_field = "Word"
+meaning_field = "Meaning"
+image_field = "Image"
+placement = "replace"
+card_kind = "word"
+caption = 'Bold text on a white banner at the bottom: "{term}"'
+constraints = "NOT Western cartoon, NOT Pixar, NOT 3D render, NOT chibi. No other text in the image"
+prompt_guide = "prompt_guides/example.md"

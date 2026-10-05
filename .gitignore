@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+.pytest_cache/
+output/
+# Personal policy: copy config.example.toml and prompt_guides/example.md
+/config.toml
+/prompt_guides/*
+!/prompt_guides/example.md
