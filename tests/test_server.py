@@ -1,6 +1,7 @@
 import asyncio
 import json
 import shutil
+import time
 from pathlib import Path
 
 import pytest
@@ -15,27 +16,30 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 class FakeService:
-    def __init__(self, error: Exception | None = None) -> None:
+    def __init__(self, error: Exception | None = None, delay: float = 0.0) -> None:
         self.error = error
+        self.delay = delay
         self.calls: list[tuple] = []
 
     def generate_for_note(self, prompt, note_id, width=None, height=None):
         self.calls.append(("generate", prompt, note_id, width, height))
+        time.sleep(self.delay)
         if self.error:
             raise self.error
         return StoredImage(filename=f"anki-img-{note_id}.png", local_path="/x/out.png")
 
     def preview(self, prompt, width=None, height=None):
         self.calls.append(("preview", prompt, width, height))
+        time.sleep(self.delay)
         if self.error:
             raise self.error
         return "/x/preview.png"
 
 
-def call(server, tool: str, args: dict):
+def call(server, tool: str, args: dict, progress_callback=None):
     async def run():
         async with Client(server) as client:
-            return await client.call_tool(tool, args)
+            return await client.call_tool(tool, args, progress_callback=progress_callback)
 
     return asyncio.run(run())
 
@@ -90,6 +94,30 @@ def test_generate_image_passes_arguments(config_path):
 def test_preview_image(config_path):
     data = payload(call(build_server(config_path, FakeService()), "preview_image", {"prompt": "x"}))
     assert data == {"local_path": "/x/preview.png"}
+
+
+@pytest.mark.parametrize("tool, args", [("generate_image", {"prompt": "x", "note_id": 1}),
+                                        ("preview_image", {"prompt": "x"})])
+def test_long_generation_reports_progress(config_path, tool, args):
+    # Clients abort a tool call that stays silent too long; a slow GPU must not look like a hang.
+    updates = []
+
+    async def on_progress(progress, total, message):
+        updates.append((progress, message))
+
+    server = build_server(config_path, FakeService(delay=0.35), heartbeat_seconds=0.1)
+    payload(call(server, tool, args, progress_callback=on_progress))
+    assert len(updates) >= 2
+    assert [p for p, _ in updates] == sorted(p for p, _ in updates)
+    assert "elapsed" in updates[0][1]
+
+
+def test_failed_generation_after_heartbeats_keeps_message(config_path):
+    server = build_server(config_path, FakeService(GenerationError("out of memory"), delay=0.25),
+                          heartbeat_seconds=0.1)
+    result = call(server, "generate_image", {"prompt": "x", "note_id": 1})
+    assert result.is_error
+    assert "out of memory" in result.content[0].text
 
 
 @pytest.mark.parametrize(

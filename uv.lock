@@ -12,6 +12,7 @@ name = "anki-imagegen"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "anyio" },
     { name = "mcp" },
     { name = "mflux" },
 ]
@@ -23,6 +24,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "anyio", specifier = "==4.15.1" },
     { name = "mcp", specifier = "==2.3.0" },
     { name = "mflux", specifier = "==0.21.0" },
 ]
