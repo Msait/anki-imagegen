@@ -1,3 +1,4 @@
+Subdeck = "Vocabulary"         # Anki fills this from the deck name
 Word = "take it with a grain of salt"
 IPA = "/teɪk ɪt wɪð ə ɡreɪn əv sɔːlt/"
 Meaning = "не вірити повністю, сприймати зі скепсисом"

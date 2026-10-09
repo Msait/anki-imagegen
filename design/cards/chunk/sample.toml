@@ -1,4 +1,7 @@
 # Example note for `anki-design preview`.
+Subdeck = "Chunks"             # Anki fills this from the deck name
 Situation = "You text a friend: the bus broke down, and you will miss the first ten minutes of the film."
 Chunk = "I'm running late"
+Example = "Sorry, <b>I'm running late</b> — start without me.<br>Tell the boss <b>I'm running late</b>, the trains are down."
+Note = "Present continuous: it is happening now. Not \"I'm late\" — you are still on the way."
 Image = '<img src="sample-chunk.svg">'

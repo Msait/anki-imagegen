@@ -27,43 +27,19 @@ word = "{term}, one clear scene, centered composition"
 concept = "a visual metaphor scene: {meaning}"
 
 # Per-deck overrides: any [defaults] key; subdecks (A::B) inherit A's overrides.
-# The decks below match the three card designs in design/cards: rename them to your decks.
-
-# design/cards/chunk: situation on the front, the chunk on a banner in the picture on the back
-[decks."English::CHUNKS"]
-style = "Japanese anime illustration in the style of a light novel cover, 2D cel shading, clean thin lineart, large expressive eyes, soft glowing light, highly detailed digital painting, cinematic golden-hour backlight, glowing rim light on hair, floating light particles, soft bokeh background, rich warm saturated colors, glossy hair highlights, sparkling detailed eyes"
-term_field = "Chunk"
-meaning_field = "Situation"    # draw the situation from the card front
-image_field = "Image"
-placement = "replace"
-card_kind = "concept"
-constraints = "NOT Western cartoon, NOT Pixar, NOT 3D render, NOT chibi. No other text in the image"
-caption = 'Bold text on a yellow brush-stroke banner at the bottom: "{term}"'
-prompt_guide = "prompt_guides/example.md"
-
-# design/cards/recognition: word on the front; meaning, example, then the picture on the back
-[decks."English RECOGNITION"]
-style = "Japanese anime illustration in the style of a light novel cover, 2D cel shading, clean thin lineart, large expressive eyes, soft glowing light, highly detailed digital painting, cinematic golden-hour backlight, glowing rim light on hair, floating light particles, soft bokeh background, rich warm saturated colors, glossy hair highlights, sparkling detailed eyes"
+# The deck below is an example: rename it to one of your decks and adjust the fields.
+[decks."Vocabulary"]
 term_field = "Word"
 meaning_field = "Meaning"
 image_field = "Image"
-placement = "append"
-card_kind = "auto"
-
-# design/cards/concept: software engineering term; metaphor picture, explanation, code
-[decks."SWE::Concepts"]
-style = "Japanese anime illustration in the style of a slice-of-life anime, 2D cel shading, clean thin lineart, cozy late-evening workshop or library interior, cool teal monitor glow mixed with warm desk-lamp light, soft bokeh, calm composition, one clear visual metaphor"
-term_field = "Term"
-meaning_field = "Explanation"
-image_field = "Image"
 placement = "replace"
-card_kind = "concept"
-constraints = "NOT Western cartoon, NOT Pixar, NOT 3D render, NOT chibi. No text, no code, no letters, no UI screenshots in the image"
+card_kind = "word"
+caption = 'Bold text on a white banner at the bottom: "{term}"'
+constraints = "NOT Western cartoon, NOT Pixar, NOT 3D render, NOT chibi. No other text in the image"
+prompt_guide = "prompt_guides/example.md"
 
-# Card designs for `uv run anki-design sync`: Anki note type name = design in design/cards.
-# A note type with several card types names the one to restyle:
-#   "English Words" = { design = "recognition", template = "Recognition" }
+# Card designs for `uv run anki-design sync` (see design/README.md):
+# Anki note type name = a design folder in design/cards. A note type with several
+# card types names the one to restyle: "Vocabulary" = { design = "recognition", template = "Card 1" }
 [note_types]
-"English Chunks" = "chunk"
-"English Recognition" = "recognition"
-"SWE Concept" = "concept"
+"Vocabulary" = "recognition"

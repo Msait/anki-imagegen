@@ -31,6 +31,11 @@ CSS_PARTS = ("fonts/fonts.css", "tokens.css", "components.css")
 # Replacements Anki fills in itself; they are not note fields.
 SPECIAL_FIELDS = {"FrontSide", "Tags", "Type", "Deck", "Subdeck", "Card", "CardFlag", "CardID"}
 TAG = re.compile(r"{{(.*?)}}", re.S)
+# What Anki renders for {{tts ...}}: a replay button (it speaks on its own when the side opens).
+REPLAY_BUTTON = (
+    '<a class="replay-button soundLink" href="#"><svg class="playImage" viewBox="0 0 64 64">'
+    '<circle cx="32" cy="32" r="29"/><path d="M56.502,32.301l-37.502,20.101l0.329,-40.804l37.173,20.703Z"/></svg></a>'
+)
 
 
 class DesignError(ValueError):
@@ -138,6 +143,8 @@ def render_template(text: str, note: dict[str, str], front_side: str = "") -> st
             elif isinstance(node, Replacement):
                 if node.field == "FrontSide":
                     out.append(front_side)
+                elif node.tag.startswith("tts "):
+                    out.append(REPLAY_BUTTON)
                 else:
                     value = note.get(node.field, "")
                     out.append(re.sub(r"<[^>]+>", "", value) if node.tag.startswith("text:") else value)

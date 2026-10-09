@@ -55,6 +55,19 @@ def test_render_like_anki():
     assert render_template("{{FrontSide}}|{{text:Meaning}}", {"Meaning": "<b>x</b>"}, "F") == "F|x"
 
 
+def test_tts_renders_a_replay_button_and_needs_its_field():
+    assert "replay-button" in render_template("{{tts en_US:Chunk}}", {"Chunk": "hi"})
+    with pytest.raises(DesignError, match="Chunk"):
+        fit_template("{{tts en_US:Chunk}}", ["Word"])
+
+
+def test_chunk_design_fits_the_current_chunk_note_type():
+    chunk = load_designs()["chunk"]
+    back = fit_template(chunk.back, ["Situation", "Chunk", "Example", "Note", "Image"])
+    assert back.index('id="answer"') < back.index("{{Chunk}}") < back.index("{{Image}}") < back.index("{{Example}}")
+    assert "{{tts en_US:Chunk}}" in back
+
+
 def test_shipped_designs_fit_their_samples():
     designs = load_designs()
     assert set(designs) == {"chunk", "recognition", "concept"}

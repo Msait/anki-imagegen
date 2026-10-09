@@ -89,6 +89,35 @@
 }
 .aic-example b, .aic-example strong { color: var(--ink); }
 
+/* Answer row: the chunk and its replay button side by side, so replay is one tap */
+.aic-answer { display: flex; align-items: center; gap: var(--space-3); }
+.aic-answer .replay-button, .aic-answer .soundLink { flex: none; line-height: 0; }
+.aic .replay-button svg { width: 40px; height: 40px; }
+.aic .replay-button svg circle { fill: var(--deck-soft); stroke: var(--deck); stroke-width: 3; }
+.aic .replay-button svg path { fill: var(--deck); }
+
+/* Collapsed extras: open them when the answer was wrong or shaky */
+.aic-more { border-top: 1px solid var(--line); }
+.aic-more summary {
+  min-height: 44px;                 /* a thumb-sized target on phones */
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  list-style: none;
+  font: 700 var(--text-label)/16px var(--font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.aic-more summary::-webkit-details-marker { display: none; }
+.aic-more summary::before { content: "+"; font-size: 18px; color: var(--deck); }
+.aic-more[open] summary::before { content: "\2212"; }
+.aic-more .aic-example { margin-bottom: var(--space-3); }
+
+/* Note: grammar or usage remark, always visible but quiet */
+.aic-note { display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--text-example); color: var(--ink-muted); }
+
 /* Code (SWE) */
 .aic code {
   font-family: var(--font-mono);
@@ -124,15 +153,3 @@
 }
 .aic-image img { display: block; width: 100%; height: auto; max-width: none; }
 .aic-image br { display: none; }   /* placement = "append" can leave a <br> before the image */
-
-/* Caption banner: shown only while a chunk card has no image yet */
-.aic-banner {
-  align-self: center;
-  padding: 8px 26px 10px;
-  background: var(--banner);
-  color: var(--on-banner);
-  font: 800 22px/1.25 var(--font-display);
-  text-align: center;
-  clip-path: polygon(2% 14%, 9% 4%, 30% 9%, 52% 2%, 76% 8%, 97% 3%, 100% 30%, 98% 62%, 100% 92%, 82% 97%, 60% 92%, 38% 99%, 14% 93%, 1% 97%, 3% 66%, 0% 40%);
-  transform: rotate(-1.5deg);
-}

@@ -1,8 +1,12 @@
 <div class="aic aic--chunks">
-  <span class="aic-chip">English · Chunks</span>
+  <span class="aic-chip">{{Subdeck}}</span>
   <p class="aic-situation aic-situation--recall">{{Situation}}</p>
   <hr id="answer">
+  <div class="aic-answer">
+    <p class="aic-chunk">{{Chunk}}</p>
+    {{tts en_US:Chunk}}
+  </div>
   {{#Image}}<div class="aic-image">{{Image}}</div>{{/Image}}
-  {{^Image}}<span class="aic-banner">{{Chunk}}</span>{{/Image}}
-  <p class="aic-chunk">{{Chunk}}</p>
+  {{#Example}}<details class="aic-more"><summary>Examples</summary><div class="aic-example">{{Example}}</div></details>{{/Example}}
+  {{#Note}}<div class="aic-note"><span class="aic-label">Note</span><div>{{Note}}</div></div>{{/Note}}
 </div>

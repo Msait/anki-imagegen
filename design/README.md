@@ -13,11 +13,14 @@ design/
   preview/          stand-in pictures for previews
 ```
 
-| Design | Deck | Fields | Optional fields |
+| Design | For | Fields | Optional fields |
 | --- | --- | --- | --- |
-| `chunk` | English::CHUNKS | Situation, Chunk | Image |
-| `recognition` | English RECOGNITION | Word, Meaning | IPA, Example, Image |
-| `concept` | SWE::Concepts | Term, Explanation | Topic, Question, Code, Image |
+| `chunk` | a phrase recalled from a situation | Situation, Chunk | Example, Note, Image |
+| `recognition` | a word or phrase to understand | Word, Meaning | IPA, Example, Image |
+| `concept` | a technical term to explain | Term, Explanation | Topic, Question, Code, Image |
+
+The chip at the top shows the card's deck (`{{Subdeck}}`). Your own note types
+and decks belong in your `config.toml` (`[note_types]`), never in these files.
 
 ## Workflow
 
