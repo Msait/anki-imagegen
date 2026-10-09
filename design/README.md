@@ -1,8 +1,6 @@
 # Card design
 
-The look of the three card types, kept apart from the image generator. Design
-system (colours, type, components, rationale):
-https://claude.ai/artifact/W2WpxSEtHG1HWfXqCy1tmG
+The look of the three card types, kept apart from the image generator.
 
 ```
 design/

@@ -68,6 +68,13 @@ def test_chunk_design_fits_the_current_chunk_note_type():
     assert "{{tts en_US:Chunk}}" in back
 
 
+def test_recognition_design_reads_the_word_aloud_on_the_back():
+    recognition = load_designs()["recognition"]
+    back = fit_template(recognition.back, ["Word", "Meaning", "Image"])
+    assert back.index("{{Word}}") < back.index("{{tts en_US:Word}}") < back.index('id="answer"')
+    assert "tts" not in recognition.front  # like the current note type: spoken with the answer only
+
+
 def test_shipped_designs_fit_their_samples():
     designs = load_designs()
     assert set(designs) == {"chunk", "recognition", "concept"}

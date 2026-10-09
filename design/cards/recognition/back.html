@@ -1,7 +1,10 @@
 <div class="aic aic--recognition">
   <span class="aic-chip">{{Subdeck}}</span>
   <div class="aic-q">
-    <h1 class="aic-term aic-term--sm">{{Word}}</h1>
+    <div class="aic-answer">
+      <h1 class="aic-term aic-term--sm">{{Word}}</h1>
+      {{tts en_US:Word}}
+    </div>
     {{#IPA}}<span class="aic-ipa">{{IPA}}</span>{{/IPA}}
   </div>
   <hr id="answer">
