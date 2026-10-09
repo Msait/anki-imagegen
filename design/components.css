@@ -78,7 +78,8 @@
   text-underline-offset: 6px;
   text-wrap: balance;
 }
-.aic-example {
+.aic-example,
+.aic-meaning .ex {
   margin: 0;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
@@ -88,6 +89,8 @@
   color: var(--ink-muted);
 }
 .aic-example b, .aic-example strong { color: var(--ink); }
+/* Notes that keep their example inside Meaning as <span class="ex">: show it as its own box */
+.aic-meaning .ex { display: block; margin-top: var(--space-3); }
 
 /* Answer row: the chunk and its replay button side by side, so replay is one tap */
 .aic-answer { display: flex; align-items: center; gap: var(--space-3); }

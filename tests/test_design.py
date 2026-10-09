@@ -75,6 +75,10 @@ def test_recognition_design_reads_the_word_aloud_on_the_back():
     assert "tts" not in recognition.front  # like the current note type: spoken with the answer only
 
 
+def test_example_kept_inside_meaning_gets_its_own_box():
+    assert ".aic-meaning .ex { display: block;" in build_css()
+
+
 def test_shipped_designs_fit_their_samples():
     designs = load_designs()
     assert set(designs) == {"chunk", "recognition", "concept"}
