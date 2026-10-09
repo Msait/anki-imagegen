@@ -38,6 +38,18 @@ Tools: `get_config(deck)`, `generate_image(prompt, note_id, width?, height?)`,
 `preview_image(prompt, width?, height?)`. Images are stored as
 `anki-img-<noteId>.png`; a copy of every image stays in `output/`.
 
+## Card design
+
+The cards' look lives in `design/` (tokens, components, one folder per card type)
+and is pushed to Anki's note types with:
+
+```sh
+uv run anki-design preview         # output/design-preview/index.html
+uv run anki-design sync --dry-run  # then without --dry-run; Anki must be open
+```
+
+AnkiDroid picks it up through AnkiWeb sync. Details: `design/README.md`.
+
 ## Develop
 
 ```sh

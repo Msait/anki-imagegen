@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 768 768" width="768" height="768">
+  <!-- Stand-in for a generated illustration, used only by `anki-design preview`. -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f6a6b9"/><stop offset="0.65" stop-color="#b8325a"/><stop offset="1" stop-color="#1f1b2e"/>
+    </linearGradient>
+    <radialGradient id="sun"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#ffe08a" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="768" height="768" fill="url(#sky)"/>
+  <circle cx="540" cy="250" r="230" fill="url(#sun)"/>
+  <circle cx="540" cy="250" r="70" fill="#ffe08a"/>
+  <path d="M0 560 C160 500 300 520 420 560 S650 600 768 540 V768 H0Z" fill="#1f1b2e" opacity="0.55"/>
+  <path d="M0 640 C200 600 420 620 768 650 V768 H0Z" fill="#1f1b2e"/>
+  <g fill="#1f1b2e"><circle cx="300" cy="470" r="38"/><path d="M250 640 Q300 500 350 640Z"/></g>
+  <g fill="#ffe08a"><circle cx="120" cy="180" r="6"/><circle cx="200" cy="320" r="4"/><circle cx="660" cy="470" r="5"/><circle cx="420" cy="120" r="3"/><circle cx="700" cy="120" r="7" opacity="0.7"/></g>
+</svg>

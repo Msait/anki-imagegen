@@ -1,4 +1,4 @@
-"""Minimal AnkiConnect client: reachability check and media upload."""
+"""Minimal AnkiConnect client: reachability check, media upload and note type design."""
 
 from __future__ import annotations
 
@@ -44,6 +44,25 @@ class AnkiMedia:
             data=base64.b64encode(data).decode("ascii"),
             deleteExisting=True,
         )
+
+    def model_names(self) -> list[str]:
+        return self._invoke("modelNames")
+
+    def model_field_names(self, model: str) -> list[str]:
+        return self._invoke("modelFieldNames", modelName=model)
+
+    def model_templates(self, model: str) -> dict[str, dict[str, str]]:
+        """Card types of a note type, in order: {name: {"Front": ..., "Back": ...}}."""
+        return self._invoke("modelTemplates", modelName=model)
+
+    def model_styling(self, model: str) -> str:
+        return self._invoke("modelStyling", modelName=model)["css"]
+
+    def update_model_templates(self, model: str, templates: dict[str, dict[str, str]]) -> None:
+        self._invoke("updateModelTemplates", model={"name": model, "templates": templates})
+
+    def update_model_styling(self, model: str, css: str) -> None:
+        self._invoke("updateModelStyling", model={"name": model, "css": css})
 
     def _invoke(self, action: str, **params: Any) -> Any:
         payload = json.dumps({"action": action, "version": API_VERSION, "params": params}).encode()

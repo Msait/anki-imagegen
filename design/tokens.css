@@ -1,0 +1,80 @@
+/* Design tokens: every colour, font, size and radius the cards use.
+   Change the look here. Components (components.css) only read these variables.
+   Anki puts .card on <body>; night mode adds .nightMode (desktop) or .night_mode
+   (AnkiDroid), so both are listed. */
+
+:root, .card {
+  /* Colour: day */
+  --surface: #f7f5fb;            /* card background, faint dusk lavender */
+  --surface-raised: #ffffff;     /* example quote */
+  --ink: #1f1b2e;                /* main text */
+  --ink-muted: #5d5873;          /* situation on the back, IPA, examples, labels */
+  --line: #dcd7ea;               /* question/answer divider, borders */
+  --banner: #ffd23f;             /* yellow brush-stroke banner (same at night) */
+  --on-banner: #1f1b2e;          /* text on the banner (same at night) */
+  --glow: rgba(242, 158, 56, 0.55);  /* golden-hour glow around the picture */
+  --code-bg: #1f1b2e;            /* code block, dark in both modes */
+  --code-ink: #ece9f7;
+
+  /* Deck colours: chip, chunk underline, inline code */
+  --deck-chunks: #a85600;        /* amber */
+  --deck-chunks-soft: #fff1dc;
+  --deck-recognition: #b8325a;   /* sakura */
+  --deck-recognition-soft: #fde6ee;
+  --deck-swe: #0e7383;           /* terminal teal */
+  --deck-swe-soft: #dcf3f5;
+
+  /* Type: files and @font-face rules live in fonts/ */
+  --font-display: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", system-ui, sans-serif;
+  --font-body: "Nunito", "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --text-term-xl: 34px;          /* word / term on the front */
+  --text-term: 26px;             /* chunk, term on the back */
+  --text-situation: 20px;
+  --text-body: 18px;
+  --text-example: 16px;
+  --text-label: 12px;
+  --text-ipa: 15px;
+  --text-code: 14px;
+
+  /* Space and shape */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --card-max: 560px;             /* text column on desktop */
+  --image-max: 512px;
+}
+
+/* Colour: night */
+.nightMode.card, .night_mode.card, .nightMode .card, .night_mode .card {
+  --surface: #14121f;
+  --surface-raised: #1e1b2d;
+  --ink: #f1eefa;
+  --ink-muted: #a7a1bf;
+  --line: #2f2b44;
+  --glow: rgba(245, 167, 74, 0.35);
+  --code-bg: #0d0c15;
+  --deck-chunks: #ffb547;
+  --deck-chunks-soft: #3a2a12;
+  --deck-recognition: #ff8fb0;
+  --deck-recognition-soft: #3a1b28;
+  --deck-swe: #5fd4e2;
+  --deck-swe-soft: #10303a;
+}
+
+/* Phones (AnkiDroid, AnkiMobile): a narrow screen and a thumb's distance */
+.mobile.card, .mobile .card {
+  --text-term-xl: 30px;
+  --text-term: 24px;
+  --text-situation: 19px;
+  --text-body: 17px;
+  --text-code: 13px;
+  --space-8: 20px;
+}

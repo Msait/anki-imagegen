@@ -171,3 +171,23 @@ def test_rule_may_use_only_meaning(tmp_path):
                          "concept = \"a visual metaphor scene: {meaning}\"")
     assert load_config(write(tmp_path, text)).for_deck("x").prompt_rules["concept"] == (
         "a visual metaphor scene: {meaning}")
+
+
+def test_note_types_accept_name_or_table(tmp_path):
+    text = VALID + '\n[note_types]\n"English Chunks" = "chunk"\n"English Words" = { design = "recognition", template = "Recognition" }\n'
+    links = load_config(write(tmp_path, text)).note_types
+    assert links["English Chunks"].design == "chunk" and links["English Chunks"].template is None
+    assert links["English Words"].template == "Recognition"
+
+
+def test_note_types_are_optional(tmp_path):
+    assert load_config(write(tmp_path, VALID)).note_types == {}
+
+
+@pytest.mark.parametrize(
+    "entry, message",
+    [('"X" = 3', "design name"), ('"X" = { design = "" }', "non-empty"), ('"X" = { design = "a", deck = "b" }', "unknown key")],
+)
+def test_note_types_reject_bad_entries(tmp_path, entry, message):
+    with pytest.raises(ConfigError, match=message):
+        load_config(write(tmp_path, VALID + f"\n[note_types]\n{entry}\n"))

@@ -1,0 +1,6 @@
+Topic = "Caching"
+Term = "Cache-aside"
+Question = "What is it, and when does it go stale?"
+Explanation = "The app checks the cache first; on a miss it reads the database and writes the value back. Data goes stale when the database changes without an <code>invalidate(key)</code>."
+Code = "v = cache.get(key)<br>if v is None:<br>    v = db.load(key)<br>    cache.set(key, v, ttl=300)"
+Image = '<img src="sample-concept.svg">'

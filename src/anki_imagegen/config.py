@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import string
 import tomllib
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -36,7 +36,7 @@ GENERATOR_KEY_TYPES: dict[str, type] = {
     "width": int,
     "height": int,
 }
-TOP_LEVEL_KEYS = {"generator", "defaults", "prompt_rules", "decks"}
+TOP_LEVEL_KEYS = {"generator", "defaults", "prompt_rules", "decks", "note_types"}
 
 
 class ConfigError(ValueError):
@@ -59,6 +59,14 @@ class GeneratorSettings:
     steps: int
     width: int
     height: int
+
+
+@dataclass(frozen=True)
+class NoteTypeLink:
+    """Which card design (design/cards/<design>) a note type gets, and on which card type."""
+
+    design: str
+    template: str | None = None  # card type name; None = the note type's only card type
 
 
 @dataclass(frozen=True)
@@ -87,6 +95,7 @@ class Config:
     prompt_rules: dict[str, str]
     decks: dict[str, dict[str, Any]]
     guides: dict[str, str]  # prompt_guide path -> file text
+    note_types: dict[str, NoteTypeLink] = field(default_factory=dict)  # note type name -> design
 
     def for_deck(self, deck: str) -> DeckSettings:
         """Defaults overlaid with every ancestor deck's overrides, root first."""
@@ -131,6 +140,7 @@ def load_config(path: Path) -> Config:
         _check_deck_values(where, overrides)
 
     guides = _load_guides(Path(path).parent, [defaults, *decks.values()])
+    note_types = _note_types(raw.get("note_types", {}))
 
     return Config(
         generator=GeneratorSettings(**generator),
@@ -138,7 +148,27 @@ def load_config(path: Path) -> Config:
         prompt_rules=prompt_rules,
         decks=decks,
         guides=guides,
+        note_types=note_types,
     )
+
+
+def _note_types(raw: Any) -> dict[str, NoteTypeLink]:
+    if not isinstance(raw, dict):
+        raise ConfigError("[note_types] must be a table of note type names")
+    links: dict[str, NoteTypeLink] = {}
+    for name, value in raw.items():
+        where = f'[note_types] "{name}"'
+        if isinstance(value, str):
+            value = {"design": value}
+        if not isinstance(value, dict):
+            raise ConfigError(f'{where} must be a design name or {{ design = "...", template = "..." }}')
+        _check_keys(where, value, {"design", "template"})
+        if not isinstance(value.get("design"), str) or not value["design"]:
+            raise ConfigError(f"{where}: design must be a non-empty string")
+        if "template" in value and (not isinstance(value["template"], str) or not value["template"]):
+            raise ConfigError(f"{where}: template must be a non-empty string")
+        links[name] = NoteTypeLink(design=value["design"], template=value.get("template"))
+    return links
 
 
 def _load_guides(base_dir: Path, tables: list[dict[str, Any]]) -> dict[str, str]:

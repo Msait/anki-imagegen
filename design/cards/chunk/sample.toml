@@ -1,0 +1,4 @@
+# Example note for `anki-design preview`.
+Situation = "You text a friend: the bus broke down, and you will miss the first ten minutes of the film."
+Chunk = "I'm running late"
+Image = '<img src="sample-chunk.svg">'

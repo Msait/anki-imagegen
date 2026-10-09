@@ -1,0 +1,17 @@
+# Fonts embedded in the cards, so they look the same in AnkiDroid offline and on desktop.
+# After changing this list run `uv run python scripts/fetch_fonts.py`, update the
+# font stacks in design/tokens.css, then `uv run anki-design sync`.
+# Pick families whose cyrillic subset has і ї є ґ: many Japanese fonts only cover Russian.
+subsets = ["latin", "latin-ext", "cyrillic", "cyrillic-ext"]   # latin-ext covers IPA (ə ɡ ː)
+
+[[font]]
+family = "M PLUS Rounded 1c"       # display: words, chunks, terms
+weights = [800]
+
+[[font]]
+family = "Nunito"                  # body: situations, meanings, examples
+weights = [400, 700]
+
+[[font]]
+family = "JetBrains Mono"          # IPA and code
+weights = [400]
