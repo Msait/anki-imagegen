@@ -22,8 +22,9 @@ TEXT_RGB = (20, 20, 20)
 
 # Proportions of the image width.
 EDGE_MARGIN = 0.04  # the banner never touches the image edge
-BOTTOM_MARGIN = 0.035
-MAX_LINE_WIDTH = 0.80
+BOTTOM_MARGIN = 0.05  # leaves room for the tilt
+MIN_BANNER = 0.72  # short captions still get a wide brush stroke
+MAX_LINE_WIDTH = 0.76
 MAX_FONT = 0.085
 MIN_ONE_LINE_FONT = 0.055  # a caption that would need a smaller font wraps to two lines
 
@@ -32,6 +33,9 @@ PAD_X = 0.8
 PAD_Y = 0.45
 LINE_HEIGHT = 1.15
 EDGE_JITTER = 0.07  # roughness of the brush stroke's long edges
+
+TILT_DEGREES = 2.5  # banner rises slightly to the right
+ITALIC_SLANT = 0.18  # horizontal shift per pixel of height
 
 
 def _font(size: int) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
@@ -74,14 +78,55 @@ def _brush_polygon(
     top_edge = [(x, top + rng.uniform(-jitter, jitter)) for x in range(round(left), round(right), step)]
     bottom_edge = [(x, bottom + rng.uniform(-jitter, jitter)) for x in range(round(right), round(left), -step)]
     # ragged brush ends: the stroke starts and stops unevenly
-    end_points = 5
+    end_points = 7
     right_end = [
-        (right - rng.uniform(0, size * 0.35), top + (bottom - top) * i / end_points) for i in range(end_points + 1)
+        (right - rng.uniform(0, size * 0.6), top + (bottom - top) * i / end_points) for i in range(end_points + 1)
     ]
     left_end = [
-        (left + rng.uniform(0, size * 0.35), bottom - (bottom - top) * i / end_points) for i in range(end_points + 1)
+        (left + rng.uniform(0, size * 0.6), bottom - (bottom - top) * i / end_points) for i in range(end_points + 1)
     ]
     return top_edge + right_end + bottom_edge + left_end
+
+
+def _draw_brush(
+    layer: Image.Image, rng: random.Random, left: float, top: float, right: float, bottom: float, size: int
+) -> None:
+    draw = ImageDraw.Draw(layer)
+    draw.polygon(_brush_polygon(rng, left, top, right, bottom, size), fill=(*BANNER_RGB, 255))
+    # dry-brush streaks: thin lines of paint running past the ends, and bare gaps near them
+    height = bottom - top
+    for _ in range(6):
+        y = rng.uniform(top + height * 0.1, bottom - height * 0.1)
+        thickness = rng.uniform(size * 0.04, size * 0.12)
+        if rng.random() < 0.5:
+            start, end = left - rng.uniform(0, size * 0.5), left + rng.uniform(size * 0.3, size * 1.2)
+        else:
+            start, end = right - rng.uniform(size * 0.3, size * 1.2), right + rng.uniform(0, size * 0.5)
+        draw.rectangle((start, y, end, y + thickness), fill=(*BANNER_RGB, rng.randint(150, 230)))
+    for _ in range(4):
+        y = rng.uniform(top + height * 0.15, bottom - height * 0.15)
+        thickness = rng.uniform(1, size * 0.05)
+        if rng.random() < 0.5:
+            start, end = left, left + rng.uniform(size * 0.4, size * 1.0)
+        else:
+            start, end = right - rng.uniform(size * 0.4, size * 1.0), right
+        draw.rectangle((start, y, end, y + thickness), fill=(0, 0, 0, 0))
+
+
+def _draw_text(layer: Image.Image, lines: list[str], font, center_x: float, first_y: float, line_height: float) -> None:
+    """Italic text: drawn upright on its own layer, then slanted with a shear."""
+    text_layer = Image.new("RGBA", layer.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(text_layer)
+    for i, line in enumerate(lines):
+        draw.text((center_x, first_y + i * line_height), line, font=font, fill=(*TEXT_RGB, 255), anchor="mm")
+    middle = first_y + (len(lines) - 1) * line_height / 2
+    slanted = text_layer.transform(
+        layer.size,
+        Image.Transform.AFFINE,
+        (1, ITALIC_SLANT, -ITALIC_SLANT * middle, 0, 1, 0),
+        resample=Image.Resampling.BICUBIC,
+    )
+    layer.alpha_composite(slanted)
 
 
 def draw_caption(png: bytes, text: str) -> bytes:
@@ -89,26 +134,26 @@ def draw_caption(png: bytes, text: str) -> bytes:
     text = " ".join(text.split())
     if not text:
         raise ValueError("caption must not be blank")
-    image = Image.open(io.BytesIO(png)).convert("RGB")
+    image = Image.open(io.BytesIO(png)).convert("RGBA")
     width, height = image.size
     lines, size = _layout(text, width)
     font = _font(size)
 
     line_height = size * LINE_HEIGHT
-    banner_w = min(max(font.getlength(line) for line in lines) + 2 * size * PAD_X, width * (1 - 2 * EDGE_MARGIN))
+    text_w = max(font.getlength(line) for line in lines) + 2 * size * PAD_X
+    banner_w = min(max(text_w, width * MIN_BANNER), width * (1 - 2 * EDGE_MARGIN) - size)
     banner_h = len(lines) * line_height + 2 * size * PAD_Y
     left = (width - banner_w) / 2
     bottom = height - width * BOTTOM_MARGIN
     top = bottom - banner_h
 
     rng = random.Random(text)  # same caption, same brush stroke
-    draw = ImageDraw.Draw(image)
-    draw.polygon(_brush_polygon(rng, left, top, left + banner_w, bottom, size), fill=BANNER_RGB)
-    center_x = width / 2
-    first_y = top + size * PAD_Y + line_height / 2
-    for i, line in enumerate(lines):
-        draw.text((center_x, first_y + i * line_height), line, font=font, fill=TEXT_RGB, anchor="mm")
+    layer = Image.new("RGBA", image.size, (0, 0, 0, 0))
+    _draw_brush(layer, rng, left, top, left + banner_w, bottom, size)
+    _draw_text(layer, lines, font, width / 2, top + size * PAD_Y + line_height / 2, line_height)
+    layer = layer.rotate(TILT_DEGREES, center=(width / 2, (top + bottom) / 2), resample=Image.Resampling.BICUBIC)
+    image.alpha_composite(layer)
 
     buffer = io.BytesIO()
-    image.save(buffer, format="PNG")
+    image.convert("RGB").save(buffer, format="PNG")
     return buffer.getvalue()
