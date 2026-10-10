@@ -75,22 +75,34 @@ def build_server(config_path: Path, service: ImageService, heartbeat_seconds: fl
 
     @mcp.tool()
     async def generate_image(
-        prompt: str, note_id: int, ctx: Context, width: int | None = None, height: int | None = None
+        prompt: str,
+        note_id: int,
+        ctx: Context,
+        width: int | None = None,
+        height: int | None = None,
+        caption: str | None = None,
     ) -> dict[str, str]:
         """Generate an image for an Anki note and store it in Anki's media as
         anki-img-<note_id>.png (overwrites on regeneration). Returns the media filename to
-        put in <img src="..."> and the path of the local copy. Takes a few minutes."""
+        put in <img src="..."> and the path of the local copy. Takes a few minutes.
+        caption: text drawn on a banner at the bottom after generation (exact spelling)."""
         stored = await _run_with_heartbeat(
-            ctx, heartbeat_seconds, lambda: service.generate_for_note(prompt, note_id, width, height)
+            ctx, heartbeat_seconds, lambda: service.generate_for_note(prompt, note_id, width, height, caption)
         )
         return asdict(stored)
 
     @mcp.tool()
     async def preview_image(
-        prompt: str, ctx: Context, width: int | None = None, height: int | None = None
+        prompt: str,
+        ctx: Context,
+        width: int | None = None,
+        height: int | None = None,
+        caption: str | None = None,
     ) -> dict[str, str]:
         """Generate an image to a local file only (not stored in Anki), to try out a prompt."""
-        path = await _run_with_heartbeat(ctx, heartbeat_seconds, lambda: service.preview(prompt, width, height))
+        path = await _run_with_heartbeat(
+            ctx, heartbeat_seconds, lambda: service.preview(prompt, width, height, caption)
+        )
         return {"local_path": path}
 
     return mcp

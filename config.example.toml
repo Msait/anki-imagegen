@@ -17,6 +17,7 @@ skip_if_has_image = true
 batch_size = 10
 card_kind = "auto"             # auto | word | concept
 caption = ""                   # banner template with {term}; "" = no text on the image
+caption_overlay = false        # true = draw the caption in code (exact spelling), not by the model
 constraints = "NOT Western cartoon, NOT Pixar, NOT 3D render, NOT chibi. No text in the image"
 prompt_guide = ""              # markdown with scene-writing rules, relative to this file
 

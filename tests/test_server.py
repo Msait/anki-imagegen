@@ -21,15 +21,15 @@ class FakeService:
         self.delay = delay
         self.calls: list[tuple] = []
 
-    def generate_for_note(self, prompt, note_id, width=None, height=None):
-        self.calls.append(("generate", prompt, note_id, width, height))
+    def generate_for_note(self, prompt, note_id, width=None, height=None, caption=None):
+        self.calls.append(("generate", prompt, note_id, width, height, caption))
         time.sleep(self.delay)
         if self.error:
             raise self.error
         return StoredImage(filename=f"anki-img-{note_id}.png", local_path="/x/out.png")
 
-    def preview(self, prompt, width=None, height=None):
-        self.calls.append(("preview", prompt, width, height))
+    def preview(self, prompt, width=None, height=None, caption=None):
+        self.calls.append(("preview", prompt, width, height, caption))
         time.sleep(self.delay)
         if self.error:
             raise self.error
@@ -88,12 +88,25 @@ def test_generate_image_passes_arguments(config_path):
     data = payload(call(build_server(config_path, service), "generate_image",
                         {"prompt": "an apple", "note_id": 42, "width": 768}))
     assert data == {"filename": "anki-img-42.png", "local_path": "/x/out.png"}
-    assert service.calls == [("generate", "an apple", 42, 768, None)]
+    assert service.calls == [("generate", "an apple", 42, 768, None, None)]
+
+
+def test_generate_image_passes_caption(config_path):
+    service = FakeService()
+    payload(call(build_server(config_path, service), "generate_image",
+                 {"prompt": "an apple", "note_id": 42, "caption": "HANDICAP"}))
+    assert service.calls == [("generate", "an apple", 42, None, None, "HANDICAP")]
 
 
 def test_preview_image(config_path):
     data = payload(call(build_server(config_path, FakeService()), "preview_image", {"prompt": "x"}))
     assert data == {"local_path": "/x/preview.png"}
+
+
+def test_preview_image_passes_caption(config_path):
+    service = FakeService()
+    payload(call(build_server(config_path, service), "preview_image", {"prompt": "x", "caption": "RICKETY"}))
+    assert service.calls == [("preview", "x", None, None, "RICKETY")]
 
 
 @pytest.mark.parametrize("tool, args", [("generate_image", {"prompt": "x", "note_id": 1}),

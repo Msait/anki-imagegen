@@ -44,11 +44,17 @@ tell them which key to change.
      - Never put the foreign word, the answer, or any quoted word into these
        descriptions: the model draws quoted words as text on the image.
    - Prompt = `style` + `. ` + scene (`prompt_rules[kind]` with placeholders
-     filled) + `. ` + `constraints`, then, if `caption` is not empty,
-     `. ` + `caption` with `{term}` replaced by the `term_field` value (HTML
-     removed, upper case). The caption is the only place text may appear.
+     filled) + `. ` + `constraints`, then, if `caption` is not empty and
+     `caption_overlay` is false, `. ` + `caption` with `{term}` replaced by the
+     `term_field` value (HTML removed, upper case). The caption is the only place
+     text may appear.
+   - If `caption` is not empty and `caption_overlay` is true, leave the caption
+     out of the prompt and pass that upper-case `term_field` value as `caption`
+     to `generate_image`/`preview_image`: the server draws the banner itself, so
+     the spelling is always right.
 4. **Generate in batches of `batch_size`.** For each card call
-   `mcp__anki-imagegen__generate_image(prompt, note_id)`, one card at a time,
+   `mcp__anki-imagegen__generate_image(prompt, note_id)` (plus `caption` in
+   overlay mode), one card at a time,
    never several calls in parallel (the GPU serves one image at a time). It returns
    `filename`. Then update `image_field` with the Anki MCP:
    - tag = `<img src="<filename>">`

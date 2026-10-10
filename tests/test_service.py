@@ -1,6 +1,8 @@
+import io
 from pathlib import Path
 
 import pytest
+from PIL import Image
 
 from anki_imagegen.anki_media import AnkiConnectError, AnkiMedia, AnkiUnreachableError
 from anki_imagegen.config import GeneratorSettings
@@ -103,3 +105,40 @@ def test_preview_writes_only_locally(fake_anki, generator, tmp_path):
     assert first.name.startswith("preview-") and first.suffix == ".png"
     assert second.read_bytes() == b"\x89PNG a pear"
     assert fake_anki.requests == []
+
+
+class PngModel:
+    def generate_png(self, **kwargs) -> bytes:
+        buffer = io.BytesIO()
+        Image.new("RGB", (kwargs["width"], kwargs["height"]), (40, 90, 160)).save(buffer, format="PNG")
+        return buffer.getvalue()
+
+
+@pytest.fixture
+def png_generator(tmp_path):
+    return Generator(SETTINGS, lambda s: PngModel(), cache_dir=tmp_path, free_bytes=lambda p: 10**12)
+
+
+def test_caption_is_drawn_onto_stored_image(fake_anki, png_generator, tmp_path):
+    service = ImageService(png_generator, AnkiMedia(fake_anki.url), tmp_path / "output")
+    plain = Path(service.generate_for_note("an apple", 1).local_path).read_bytes()
+    captioned = Path(service.generate_for_note("an apple", 2, caption="APPLE").local_path).read_bytes()
+    assert captioned != plain
+    image = Image.open(io.BytesIO(captioned))
+    assert image.size == (512, 512)
+    assert image.convert("RGB").getpixel((256, 10)) == (40, 90, 160)  # scene above the banner untouched
+
+
+def test_preview_draws_caption(png_generator, tmp_path):
+    service = ImageService(png_generator, AnkiMedia("http://127.0.0.1:9"), tmp_path / "output")
+    plain = Path(service.preview("an apple")).read_bytes()
+    captioned = Path(service.preview("an apple", caption="APPLE")).read_bytes()
+    assert captioned != plain
+
+
+def test_blank_caption_rejected_before_anki_and_model(fake_anki, generator, model, tmp_path):
+    service = ImageService(generator, AnkiMedia(fake_anki.url), tmp_path / "output")
+    with pytest.raises(ValueError, match="caption"):
+        service.generate_for_note("an apple", 42, caption="  ")
+    assert fake_anki.requests == []
+    assert model.calls == 0

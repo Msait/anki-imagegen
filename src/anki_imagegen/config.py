@@ -26,6 +26,7 @@ DECK_KEY_TYPES: dict[str, type] = {
     "batch_size": int,
     "card_kind": str,
     "caption": str,  # banner template with {term}; "" = no text on the image
+    "caption_overlay": bool,  # draw the caption in code after generation, not by the model
     "constraints": str,  # appended after the scene
     "prompt_guide": str,  # markdown file (relative to config.toml) with scene-writing rules
 }
@@ -36,6 +37,7 @@ GENERATOR_KEY_TYPES: dict[str, type] = {
     "width": int,
     "height": int,
 }
+OPTIONAL_DECK_DEFAULTS: dict[str, Any] = {"caption_overlay": False}  # may be left out of [defaults]
 TOP_LEVEL_KEYS = {"generator", "defaults", "prompt_rules", "decks", "note_types"}
 
 
@@ -80,6 +82,7 @@ class DeckSettings:
     batch_size: int
     card_kind: str
     caption: str
+    caption_overlay: bool
     constraints: str
     prompt_guide: str  # the guide's text, not its path
     prompt_rules: dict[str, str]
@@ -122,8 +125,9 @@ def load_config(path: Path) -> Config:
     _check_generator(generator)
 
     defaults = _table(raw, "defaults")
-    _check_keys("[defaults]", defaults, set(DECK_KEY_TYPES), required=True)
+    _check_keys("[defaults]", defaults, set(DECK_KEY_TYPES), required=True, optional=set(OPTIONAL_DECK_DEFAULTS))
     _check_deck_values("[defaults]", defaults)
+    defaults = {**OPTIONAL_DECK_DEFAULTS, **defaults}
 
     prompt_rules = _table(raw, "prompt_rules")
     _check_keys("[prompt_rules]", prompt_rules, {"word", "concept"}, required=True)
@@ -190,11 +194,13 @@ def _table(raw: dict[str, Any], name: str) -> dict[str, Any]:
     return value
 
 
-def _check_keys(where: str, table: dict[str, Any], allowed: set[str], required: bool = False) -> None:
+def _check_keys(
+    where: str, table: dict[str, Any], allowed: set[str], required: bool = False, optional: set[str] = frozenset()
+) -> None:
     unknown = sorted(set(table) - allowed)
     if unknown:
         raise ConfigError(f"{where}: unknown key(s) {', '.join(unknown)}")
-    missing = sorted(allowed - set(table)) if required else []
+    missing = sorted(allowed - optional - set(table)) if required else []
     if missing:
         raise ConfigError(f"{where}: missing key(s) {', '.join(missing)}")
 

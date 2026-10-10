@@ -9,6 +9,7 @@ from datetime import datetime
 from pathlib import Path
 
 from anki_imagegen.anki_media import AnkiConnectError, AnkiMedia, media_filename
+from anki_imagegen.caption import draw_caption
 from anki_imagegen.generator import Generator
 
 log = logging.getLogger(__name__)
@@ -27,12 +28,18 @@ class ImageService:
         self._output_dir = output_dir
 
     def generate_for_note(
-        self, prompt: str, note_id: int, width: int | None = None, height: int | None = None
+        self,
+        prompt: str,
+        note_id: int,
+        width: int | None = None,
+        height: int | None = None,
+        caption: str | None = None,
     ) -> StoredImage:
         filename = media_filename(note_id)
         prompt, width, height = self._generator.resolve_request(prompt, width, height)
+        _check_caption(caption)
         self._anki.version()  # fail fast before spending GPU time
-        png = self._generator.generate(prompt, width, height)
+        png = self._render(prompt, width, height, caption)
         try:
             local_path = str(self._write_local(filename, png))
         except OSError as e:  # the local copy is for review only; don't lose the image over it
@@ -45,13 +52,25 @@ class ImageService:
             raise type(e)(f"{e} ({kept})") from e
         return StoredImage(filename=stored, local_path=local_path)
 
-    def preview(self, prompt: str, width: int | None = None, height: int | None = None) -> str:
-        png = self._generator.generate(prompt, width, height)
+    def preview(
+        self, prompt: str, width: int | None = None, height: int | None = None, caption: str | None = None
+    ) -> str:
+        _check_caption(caption)
+        png = self._render(prompt, width, height, caption)
         name = f"preview-{datetime.now():%Y%m%d-%H%M%S}-{uuid.uuid4().hex[:6]}.png"
         return str(self._write_local(name, png))
+
+    def _render(self, prompt: str, width: int | None, height: int | None, caption: str | None) -> bytes:
+        png = self._generator.generate(prompt, width, height)
+        return draw_caption(png, caption) if caption is not None else png
 
     def _write_local(self, name: str, png: bytes) -> Path:
         self._output_dir.mkdir(parents=True, exist_ok=True)
         path = self._output_dir / name
         path.write_bytes(png)
         return path
+
+
+def _check_caption(caption: str | None) -> None:
+    if caption is not None and not caption.strip():
+        raise ValueError("caption must not be blank (omit it for no caption)")

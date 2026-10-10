@@ -75,7 +75,8 @@ def test_to_dict_has_all_documented_keys(tmp_path):
     cfg = load_config(write(tmp_path, VALID))
     assert set(cfg.for_deck("x").to_dict()) == {
         "style", "term_field", "meaning_field", "image_field", "placement",
-        "skip_if_has_image", "batch_size", "card_kind", "caption", "constraints", "prompt_guide", "prompt_rules",
+        "skip_if_has_image", "batch_size", "card_kind", "caption", "caption_overlay", "constraints",
+        "prompt_guide", "prompt_rules",
     }
 
 
@@ -191,3 +192,20 @@ def test_note_types_are_optional(tmp_path):
 def test_note_types_reject_bad_entries(tmp_path, entry, message):
     with pytest.raises(ConfigError, match=message):
         load_config(write(tmp_path, VALID + f"\n[note_types]\n{entry}\n"))
+
+
+def test_caption_overlay_is_optional_and_off_by_default(tmp_path):
+    cfg = load_config(write(tmp_path, VALID))
+    assert cfg.for_deck("German B1").caption_overlay is False
+
+
+def test_deck_can_turn_caption_overlay_on(tmp_path):
+    text = VALID + 'caption = \'Banner: "{term}"\'\ncaption_overlay = true\n'  # appended to [decks."CS Concepts"]
+    cfg = load_config(write(tmp_path, text))
+    assert cfg.for_deck("CS Concepts").caption_overlay is True
+    assert cfg.for_deck("German B1").caption_overlay is False
+
+
+def test_caption_overlay_must_be_bool(tmp_path):
+    with pytest.raises(ConfigError, match="caption_overlay"):
+        load_config(write(tmp_path, VALID + 'caption_overlay = "yes"\n'))
