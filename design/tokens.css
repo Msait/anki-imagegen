@@ -15,6 +15,7 @@
   --glow: rgba(242, 158, 56, 0.55);  /* golden-hour glow around the picture */
   --code-bg: #1f1b2e;            /* code block, dark in both modes */
   --code-ink: #ece9f7;
+  --map-paper: #fffdf7;          /* map sheet: maps are drawn for a light background */
 
   /* Deck colours: chip, chunk underline, inline code */
   --deck-chunks: #a85600;        /* amber */
@@ -60,6 +61,7 @@
   --ink-muted: #a7a1bf;
   --line: #2f2b44;
   --glow: rgba(245, 167, 74, 0.35);
+  --map-paper: #e9e5f3;          /* still light, but not a glare on a dark screen */
   --code-bg: #0d0c15;
   --deck-chunks: #ffb547;
   --deck-chunks-soft: #3a2a12;

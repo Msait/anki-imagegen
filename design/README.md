@@ -13,7 +13,7 @@ design/
 
 | Design | For | Fields | Optional fields |
 | --- | --- | --- | --- |
-| `chunk` | a phrase recalled from a situation | Situation, Chunk | Example, Note, Image |
+| `chunk` | a phrase recalled from a situation | Situation, Chunk | Example, Note, Image, Map |
 | `recognition` | a word or phrase to understand | Word, Meaning | IPA, Example, Image |
 | `concept` | a technical term to explain | Term, Explanation | Topic, Question, Code, Image |
 

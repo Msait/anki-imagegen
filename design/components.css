@@ -121,6 +121,29 @@
 /* Note: grammar or usage remark, always visible but quiet */
 .aic-note { display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--text-example); color: var(--ink-muted); }
 
+/* Map: a reference diagram, folded away so it does not slow the review down */
+.aic-map summary::before { content: "\1F5FA\FE0F"; font-size: 16px; }
+.aic-map[open] summary::before { content: "\1F5FA\FE0F"; }
+.aic-map summary::after {
+  content: "+";
+  margin-left: auto;
+  font-size: 18px;
+  color: var(--deck);
+}
+.aic-map[open] summary::after { content: "\2212"; }
+.aic-map-sheet {
+  margin-bottom: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--map-paper);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--deck);
+  color: #1f1b2e;                 /* text inside the map stays dark on the light sheet */
+  line-height: 1.4;
+}
+.aic-map-sheet svg { display: block; width: 100%; height: auto; max-width: 100%; }
+.aic-map-sheet br:first-child { display: none; }
+
 /* Code (SWE) */
 .aic code {
   font-family: var(--font-mono);
